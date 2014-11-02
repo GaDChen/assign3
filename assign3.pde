@@ -30,7 +30,7 @@ PImage bomb, flag, cross ,bg;
 
 void setup(){
   size (640,480);
-  textFont(createFont("font/Square_One.ttf", 20));
+  textFont( createFont("font/Square_One.ttf",24) , 24);
   bomb=loadImage("data/bomb.png");
   flag=loadImage("data/flag.png");
   cross=loadImage("data/cross.png");
@@ -53,7 +53,7 @@ void draw(){
     case GAME_START:
           background(180);
           image(bg,0,0,640,480);
-          textSize(16);
+          textFont( createFont("font/Square_One.ttf",24) , 24);textFont( createFont("font/Square_One.ttf",24) , 24);
           fill(0);
           text("Choose # of bombs to continue:",10,width/3-24);
           int spacing = width/9;
@@ -71,12 +71,12 @@ void draw(){
           // -----------------------------------
           break;
     case GAME_WIN:
-          textSize(18);
+          textFont( createFont("font/Square_One.ttf",24) , 24);textFont( createFont("font/Square_One.ttf",24) , 24);
           fill(0);
           text("YOU WIN !!",width/3,30);
           break;
     case GAME_LOSE:
-          textSize(18);
+          textFont( createFont("font/Square_One.ttf",24) , 24);textFont( createFont("font/Square_One.ttf",24) , 24);
           fill(0);
           text("YOU LOSE !!",width/3,30);
           break;
@@ -85,7 +85,20 @@ void draw(){
 
 int countNeighborBombs(int col,int row){
   // -------------- Requirement B ---------
-  return 0;
+  int neiCount = 0; //計數器 從0開始
+  for (int i=col-1; i <=col+1; i++){
+    for (int j=row-1; j <=row+1; j++){
+      if( i >= 0 && i <= nSlot-1 && j >= 0 && j <= nSlot-1){ 
+        
+        if ( slot[i][j] == SLOT_BOMB ){ 
+          neiCount++;
+          return neiCount;
+         
+        }
+      }
+    }
+  } 
+ return 0; 
 }
 
 void setBombs(){
@@ -97,7 +110,16 @@ void setBombs(){
   }
   // -------------- put your code here ---------
   // randomly set bombs
-
+for(int n=0; n<bombCount; n++){
+    while(true){
+      int col=(int) random(4);
+      int row=(int) random(4);
+      if(slot[col][row]==SLOT_OFF){
+        slot[col][row]=SLOT_BOMB;
+        break;
+      }
+    }
+  }
   // ---------------------------------------
 }
 
@@ -174,7 +196,39 @@ void mousePressed(){
        mouseY >= iy && mouseY <= iy+sideLength){
     
     // --------------- put you code here -------     
+int col=(int)((mouseX-ix)/SLOT_SIZE);
+int row=(int)((mouseY-iy)/SLOT_SIZE);
 
+  if (mouseButton==LEFT){
+      if ( slot[col][row]==SLOT_OFF){
+        slot[col][row]=SLOT_SAFE;
+        showSlot(col,row,slot[col][row]);
+        clickCount++;
+      }
+      
+      if ( slot[col][row]==SLOT_BOMB){
+        slot[col][row]=SLOT_BOMB;
+        showSlot(col,row,slot[col][row]);
+        gameState = GAME_LOSE;
+        
+      }
+   
+      if( clickCount==nSlot*nSlot-bombCount ){
+        gameState = GAME_WIN;
+      }
+    }
+  if( gameState==GAME_LOSE ){
+      for (int Lcol=0; Lcol < nSlot; Lcol++){
+        for (int Lrow=0; Lrow < nSlot; Lrow++){
+          if ( slot[Lcol][Lrow] == SLOT_OFF || slot[Lcol][Lrow] == SLOT_SAFE){
+            showSlot(Lcol, Lrow, SLOT_SAFE);
+            //showSlot(col, row, SLOT_SAFE_ALL);
+          } else if ( slot[Lcol][Lrow] == SLOT_BOMB ){
+            showSlot(Lcol, Lrow, SLOT_BOMB);
+          }
+  } 
+  }
+  } 
     // -------------------------
     
   }
